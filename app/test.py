@@ -1,12 +1,13 @@
-import os
 import asyncio
+import os
 
-from sqlalchemy import Column, String, Boolean, MetaData, Table
+from sqlalchemy import MetaData
 from databases import Database
 from dotenv import load_dotenv
 
-from script import get_launches_async, client
+from script import launches_query_async, gql_client
 from models import get_launches
+
 
 load_dotenv()
 
@@ -22,7 +23,7 @@ DATABASE_URL = f"postgresql+asyncpg://{db_user}:{db_passwd}@{db_host}:{db_port}/
 # FIXME: create usual tests for pytest
 metadata = MetaData()
 
-db_launches = get_launches()
+db_launches = get_launches(metadata=metadata)
 
 missions = [{
         "id": "asg",
@@ -37,8 +38,8 @@ missions = [{
     },
     ]
 
-async def main():
-    launches = await get_launches_async(client)
+async def main() -> None:
+    launches = await launches_query_async(gql_client)
 
     database = Database(DATABASE_URL)
     await database.connect()
@@ -51,7 +52,5 @@ async def main():
     await database.execute_many(query=query, values=launches)
     await database.disconnect()
 
-
 if __name__ == '__main__':
     asyncio.run(main())
-

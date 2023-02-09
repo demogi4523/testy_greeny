@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, date
 import asyncio
 
 from gql import gql, Client
@@ -15,10 +14,10 @@ from models import get_launches, get_rockets, get_missions
 
 
 # TODO: refactor this module
-space_x_url = "https://spacex-production.up.railway.app/"
-transport = AIOHTTPTransport(url=space_x_url)
+SPACE_X_URL = "https://spacex-production.up.railway.app/"
+transport = AIOHTTPTransport(url=SPACE_X_URL)
 
-client = Client(transport=transport, fetch_schema_from_transport=True)
+gql_client = Client(transport=transport, fetch_schema_from_transport=True)
 
 load_dotenv()
 
@@ -43,7 +42,7 @@ db_missions = get_missions(metadata)
 Base = declarative_base(metadata=metadata)
 
 
-async def launches_query_async(client):
+async def launches_query_async(client: Client):
     query = gql(
         """
         query LaunchesQuery {
@@ -67,7 +66,7 @@ async def launches_query_async(client):
     return launches
 
 
-async def rockets_query_async(client):
+async def rockets_query_async(client: Client):
     query = gql(
         """
         query RocketsQuery {
@@ -97,7 +96,7 @@ async def rockets_query_async(client):
     return rockets
 
 
-async def missions_query_async(client):
+async def missions_query_async(client: Client):
     query = gql(
         """
         query MissionsQuery {
@@ -139,9 +138,9 @@ async def init_models():
     await engine.dispose()
 
 async def run():
-    launches = await launches_query_async(client)
-    rockets = await rockets_query_async(client)
-    missions = await missions_query_async(client)
+    launches = await launches_query_async(gql_client)
+    rockets = await rockets_query_async(gql_client)
+    missions = await missions_query_async(gql_client)
 
     database = Database(DATABASE_URL)
     await init_models()

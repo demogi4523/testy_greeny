@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    MetaData,
     Table,
     Column,
     String,
@@ -9,7 +10,7 @@ from sqlalchemy import (
 )
 
 
-def get_launches(metadata):
+def get_launches(metadata: MetaData) -> Table:
     launches = Table(
         "launches",
         metadata,
@@ -22,7 +23,7 @@ def get_launches(metadata):
     return launches
 
 
-def get_rockets(metadata):
+def get_rockets(metadata: MetaData) -> Table:
     rockets = Table(
         "rockets",
         metadata,
@@ -37,7 +38,7 @@ def get_rockets(metadata):
     return rockets
 
 
-def get_missions(metadata):
+def get_missions(metadata: MetaData) -> Table:
     missions = Table(
         "missions",
         metadata,
