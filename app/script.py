@@ -1,46 +1,28 @@
-import os
 import asyncio
+from fastapi import Depends
 
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
 from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from databases import Database
 from dotenv import load_dotenv
 from dateutil import parser
 
-from models import get_launches, get_rockets, get_missions
+from config import Config
+from database import get_session, Base, DATABASE_URL, engine
+from models import Launch, Mission, Rocket
+from service import add_launches, add_missions, add_rockets
 
 
 # TODO: refactor this module
+# async_session = get_session()
+
 SPACE_X_URL = "https://spacex-production.up.railway.app/"
 transport = AIOHTTPTransport(url=SPACE_X_URL)
 
 gql_client = Client(transport=transport, fetch_schema_from_transport=True)
-
-load_dotenv()
-
-db_user = os.environ["POSTGRES_USER"]
-db_passwd = os.environ["POSTGRES_PASSWORD"]
-db_name = os.environ["POSTGRES_DB"]
-if os.environ.get("MODE") == "TESTING":
-    db_host = os.environ["POSTGRES_HOST"]
-    db_port = os.environ["POSTGRES_PORT"]
-else:
-    db_host = "localhost"
-    db_port = 5244
-
-DATABASE_URL = f"postgresql+asyncpg://{db_user}:{db_passwd}@{db_host}:{db_port}/{db_name}"
-
-metadata = MetaData()
-
-db_launches = get_launches(metadata)
-db_rockets = get_rockets(metadata)
-db_missions = get_missions(metadata)
-
-Base = declarative_base(metadata=metadata)
-
 
 async def launches_query_async(client: Client):
     query = gql(
@@ -117,7 +99,6 @@ async def missions_query_async(client: Client):
     res = await client.execute_async(query)
     missions = res["missions"]
 
-
     missions = [{
         **mission,
         "payloads": "orbit: {}\nnationality: {}\nmanufacturer: {}".format(
@@ -130,14 +111,11 @@ async def missions_query_async(client: Client):
     return missions
 
 async def init_models():
-    engine = create_async_engine(DATABASE_URL)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
-    await engine.dispose()
-
-async def run():
+async def run(async_session: AsyncSession = Depends(get_session)):
     launches = await launches_query_async(gql_client)
     rockets = await rockets_query_async(gql_client)
     missions = await missions_query_async(gql_client)
@@ -146,14 +124,11 @@ async def run():
     await init_models()
     await database.connect()
 
-    query = db_launches.insert()
-    await database.execute_many(query, launches)
 
-    query = db_rockets.insert()
-    await database.execute_many(query, rockets)
-
-    query = db_missions.insert()
-    await database.execute_many(query, missions)
+    print(type(async_session))
+    await add_launches(async_session, launches)
+    # await add_rockets(async_session, rockets)
+    # await add_missions(async_session, missions)
 
     await database.disconnect()
 

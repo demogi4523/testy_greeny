@@ -11,6 +11,9 @@ class Launch(BaseModel):
     launch_date_success: Optional[bool]
     upcoming: bool
 
+    class Config:
+        orm_mode = True
+
 
 class Rocket(BaseModel):
     id: str

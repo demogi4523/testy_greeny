@@ -1,6 +1,4 @@
 from sqlalchemy import (
-    MetaData,
-    Table,
     Column,
     String,
     Integer,
@@ -9,43 +7,33 @@ from sqlalchemy import (
     DateTime,
 )
 
-
-def get_launches(metadata: MetaData) -> Table:
-    launches = Table(
-        "launches",
-        metadata,
-        Column("id", String, primary_key=True),
-        Column("details", String),
-        Column("launch_date_utc", DateTime(timezone='UTC')),
-        Column("launch_success", Boolean, nullable=True),
-        Column("upcoming", Boolean),
-    )
-    return launches
+from database import Base
 
 
-def get_rockets(metadata: MetaData) -> Table:
-    rockets = Table(
-        "rockets",
-        metadata,
-        Column("id", String, primary_key=True),
-        Column("name", String),
-        Column("first_flight", Date),
-        Column("diameter_unit", String, server_default='feet'),
-        Column("diameter", Integer),
-        Column("launch_payload_mass_unit", String, server_default='lb'),
-        Column("launch_payload_mass", Integer),
-    )
-    return rockets
+class Launch(Base):
+    __tablename__ = "launches"
+    id = Column(String, primary_key=True)
+    details = Column(String)
+    launch_date_utc = Column(DateTime(timezone='UTC'))
+    launch_success = Column(Boolean, nullable=True)
+    upcoming = Column(Boolean)
 
 
-def get_missions(metadata: MetaData) -> Table:
-    missions = Table(
-        "missions",
-        metadata,
-        Column("id", String, primary_key=True),
-        Column("name", String),
-        Column("website", String),
-        Column("manufactures", String),
-        Column("payloads", String),
-    )
-    return missions
+class Rocket(Base):
+    __tablename__ = "rockets",
+    id = Column(String, primary_key=True)
+    name = Column(String)
+    first_flight = Column(Date)
+    diameter_unit = Column(String, server_default='feet')
+    diameter = Column(Integer)
+    launch_payload_mass_unit = Column(String, server_default='lb')
+    launch_payload_mass = Column(Integer)
+
+
+class Mission(Base):
+    __tablename__ = "missions",
+    id = Column(String, primary_key=True)
+    name = Column(String)
+    website = Column(String)
+    manufactures = Column(String)
+    payloads = Column(String)
