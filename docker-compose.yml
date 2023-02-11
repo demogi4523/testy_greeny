@@ -17,6 +17,12 @@ services:
   db:
     image: "postgres"
     container_name: ps
+    environment:
+      - POSTGRES_HOST=ps
+      - POSTGRES_DB=space_x
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=top_secret
+      - POSTGRES_PORT=5432
     ports:
       - "5432:5432"
 
