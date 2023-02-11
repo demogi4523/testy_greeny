@@ -29,16 +29,29 @@ async def launches_query_async(client: Client):
                 launch_date_utc,
                 launch_success,
                 upcoming,
+                mission_id,
+                rocket {
+                    rocket {
+                        id,
+                    },
+                },
             }
         }
         """
     )
     res = await client.execute_async(query)
     launches = res["launches"]
-    launches = [{
-        **launch,
-        "launch_date_utc": parser.parse(launch["launch_date_utc"]),
-    } for launch in launches]
+
+    for ind, launch in enumerate(launches):
+        ldu = parser.parse(launch["launch_date_utc"])
+        rid = launch["rocket"]["rocket"]["id"]
+        mid = launch["mission_id"][0]
+        del launches[ind]['rocket']
+        launches[ind]["launch_date_utc"] = ldu
+        launches[ind]["rocket_id"] = rid
+        launches[ind]["mission_id"] = mid
+        # del launches[ind]['rocket_id']
+    print(launches[:1])
 
     return launches
 
@@ -114,7 +127,6 @@ async def fill_data_to_db():
     database = Database(DATABASE_URL)
     await init_models()
     await database.connect()
-
 
     launches = await launches_query_async(gql_client)
     launches = [LaunchDB(**l) for l in launches]

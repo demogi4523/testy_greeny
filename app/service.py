@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import Query
-from sqlalchemy import select, funcfilter
+from sqlalchemy import select, funcfilter, text
 
 from models import Launch, Rocket, Mission
 from schema.enums import LaunchOrderEnum, MissionOrderEnum, RocketOrderEnum
@@ -27,6 +27,13 @@ async def get_launches(
             select(Launch).order_by(desc_or_asc).offset(page - 1).limit(size)
         )
         return result.scalars().all()
+
+
+async def get_launch(launch_id: str) -> Launch | None:
+    async with async_session() as sess:
+        result = await sess.get(Launch, launch_id)
+        await sess.commit()
+        return result
 
 
 async def get_successfull_launches(
@@ -59,7 +66,7 @@ async def add_launches(
     async with async_session() as transaction:
         async with transaction.begin():
             transaction.add_all(launches)
-            transaction.commit()
+            await transaction.commit()
 
 
 async def get_rockets(
@@ -84,6 +91,12 @@ async def get_rockets(
         )
         return result.scalars().all()
 
+
+async def get_rocket(rocket_id: str) -> Rocket | None:
+    async with async_session() as sess:
+        result = await sess.get(Rocket, rocket_id)
+        await sess.commit()
+        return result
 
 async def add_rockets(
     rockets: List[Rocket],
@@ -117,6 +130,13 @@ async def get_missions(
             select(Mission).order_by(desc_or_asc).offset(page - 1).limit(size)
         )
         return result.scalars().all()
+
+
+async def get_mission(mission_id: str) -> Mission | None:
+    async with async_session() as sess:
+        result = await sess.get(Mission, mission_id)
+        await sess.commit()
+        return result
 
 
 async def add_missions(

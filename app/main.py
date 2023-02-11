@@ -19,6 +19,9 @@ from schema.enums import (
 from script import fill_data_to_db
 from service import (
     get_launches,
+    get_launch,
+    get_mission,
+    get_rocket,
     get_rockets,
     get_missions,
 )
@@ -54,7 +57,7 @@ async def shutdown() -> None:
 
 
 @app.get("/")
-async def root(request: Request) -> dict:
+async def root(request: Request):
     base_url = request.base_url
     return {
         "launches": f"{base_url}launches/",
@@ -68,16 +71,25 @@ async def root(request: Request) -> dict:
 async def read_launches(
     order_by: LaunchOrderEnum = "id",
     size: int = 8, page: int = Query(ge=1, default=1), desc: bool = False,
-    ) -> List[Launch]:
+    ):
     return await get_launches(order_by, page, size, desc)
+
+
+@app.get("/launches/{launch_id}", response_model=Launch | None)
+async def read_launch(launch_id: str):
+    return await get_launch(launch_id)
 
 
 @app.get("/rockets/", response_model=List[Rocket])
 async def read_rockets(
     order_by: RocketOrderEnum = "id",
     size: int = 5, page: int = Query(ge=1, default=1), desc: bool = False,
-    ) -> List[Rocket]:
+    ):
     return await get_rockets(order_by, page, size, desc)
+
+@app.get("/rockets/{rocket_id}", response_model=Rocket | None)
+async def read_rocket(rocket_id: str):
+    return await get_rocket(rocket_id)
 
 
 @app.get("/missions/", response_model=List[Mission])
@@ -86,6 +98,11 @@ async def read_missions(
     size: int = 3, page: int = Query(ge=1, default=1), desc: bool = False,
     ) -> List[Mission]:
     return await get_missions(order_by, page, size, desc)
+
+
+@app.get("/missions/{mission_id}", response_model=Mission | None)
+async def read_mission(mission_id: str):
+    return await get_mission(mission_id)
 
 
 if __name__ == '__main__':

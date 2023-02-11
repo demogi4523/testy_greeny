@@ -10,6 +10,10 @@ class Launch(BaseModel):
     launch_date_utc: datetime
     launch_date_success: Optional[bool]
     upcoming: bool
+    mission_id: Optional[str]
+    # rocket_name: Optional[str]
+    # rocket_type: Optional[str]
+    rocket_id : str
 
     class Config:
         orm_mode = True
