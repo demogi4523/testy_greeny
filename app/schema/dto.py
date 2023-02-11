@@ -24,6 +24,9 @@ class Rocket(BaseModel):
     launch_payload_mass: int
     launch_payload_mass_unit: str
 
+    class Config:
+        orm_mode = True
+
 
 class Mission(BaseModel):
     id: str
@@ -31,3 +34,6 @@ class Mission(BaseModel):
     website: str
     manufactures: str
     payloads: str
+
+    class Config:
+        orm_mode = True

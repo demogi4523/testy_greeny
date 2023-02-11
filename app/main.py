@@ -18,7 +18,9 @@ from schema.dto import (
     Mission,
 )
 from models import (
-    Launch as LaunchDB
+    Launch as LaunchDB,
+    Rocket as RocketDB,
+    Mission as MissionDB,
 )
 from schema.enums import (
     LaunchOrderEnum,
@@ -27,6 +29,8 @@ from schema.enums import (
 )
 from service import (
     add_launches,
+    add_missions,
+    add_rockets,
     get_launches,
     # get_successfull_launches,
     get_rockets,
@@ -35,6 +39,8 @@ from service import (
 from script import (
     gql_client,
     launches_query_async,
+    missions_query_async,
+    rockets_query_async,
 )
 
 # MODE = os.environ.get("MODE", "prod")
@@ -57,14 +63,24 @@ app = FastAPI()
 
 
 @app.on_event("startup")
-async def startup() -> None:
+async def startup(
+    # async_session: AsyncSession = Depends(get_session),
+    ) -> None:
     await database.connect()
     await init_models()
+
     launches = await launches_query_async(gql_client)
-    print(launches[0])
     launches = [LaunchDB(**l) for l in launches]
+    await add_launches(launches)
     # await add_launches(async_session, launches)
-    await add_launches(AsyncSession, launches)
+
+    rockets = await rockets_query_async(gql_client)
+    rockets = [RocketDB(**r) for r in rockets]
+    await add_rockets(rockets)
+
+    missions = await missions_query_async(gql_client)
+    missions = [MissionDB(**m) for m in missions]
+    await add_missions(missions)
 
 
 @app.on_event("shutdown")
@@ -85,7 +101,7 @@ async def root(request: Request) -> dict:
 
 @app.get("/launches/", response_model=List[Launch])
 async def read_launches(
-    # async_session: AsyncSession = Depends(get_session),
+    async_session: AsyncSession = Depends(get_session),
     order_by: LaunchOrderEnum = "id",
     size: int = 8, page: int = Query(ge=1, default=1), desc: bool = False,
     ) -> List[Launch]:
@@ -97,18 +113,20 @@ async def read_launches(
 async def read_rockets(
     order_by: RocketOrderEnum = "id",
     size: int = 5, page: int = Query(ge=1, default=1), desc: bool = False,
-    async_session: AsyncSession = Depends(get_session),
+    # async_session: AsyncSession = Depends(get_session),
     ) -> List[Rocket]:
-    return await get_rockets(async_session, order_by, page, size, desc)
+    # return await get_rockets(async_session, order_by, page, size, desc)
+    return await get_rockets(order_by, page, size, desc)
 
 
 @app.get("/missions/", response_model=List[Mission])
 async def read_missions(
     order_by: MissionOrderEnum = "id",
     size: int = 3, page: int = Query(ge=1, default=1), desc: bool = False,
-    async_session: AsyncSession = Depends(get_session),
+    # async_session: AsyncSession = Depends(get_session),
     ) -> List[Mission]:
-    return await get_missions(async_session, order_by, page, size, desc)
+    # return await get_missions(async_session, order_by, page, size, desc)
+    return await get_missions(order_by, page, size, desc)
 
 
 if __name__ == '__main__':

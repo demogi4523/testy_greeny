@@ -25,7 +25,7 @@ async def init_models():
 
 
 # Dependency
-async def get_session() -> AsyncIterator[AsyncSession]:
+async def get_session() -> AsyncSession:
     async with LocalAsyncSession() as session:
         yield session
         # await session.commit()
