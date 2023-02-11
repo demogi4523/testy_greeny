@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import Query
-from sqlalchemy import select, funcfilter, text
+from sqlalchemy import select, funcfilter
 
 from models import Launch, Rocket, Mission
 from schema.enums import LaunchOrderEnum, MissionOrderEnum, RocketOrderEnum
@@ -9,7 +9,8 @@ from database import LocalAsyncSession as async_session
 
 async def get_launches(
     order_by: LaunchOrderEnum = LaunchOrderEnum.id,
-    page: Query(ge=1, default=1) = 1, size: Query(ge=1, default=5) = 5,
+    page: Query(ge=1, default=1) = 1,
+    size: Query(ge=1, default=5) = 5,
     desc: bool = True,
     ) -> list[Launch]:
 
@@ -38,8 +39,10 @@ async def get_launch(launch_id: str) -> Launch | None:
 
 async def get_successfull_launches(
     order_by: LaunchOrderEnum = LaunchOrderEnum.id,
-    page: Query(ge=1, default=1) = 1, size: Query(ge=1, default=5) = 5,
-    desc: bool = True) -> list[Launch]:
+    page: Query(ge=1, default=1) = 1,
+    size: Query(ge=1, default=5) = 5,
+    desc: bool = True
+    ) -> list[Launch]:
 
     order = None
     match order_by:
@@ -60,9 +63,7 @@ async def get_successfull_launches(
         return result.scalars().all()
 
 
-async def add_launches(
-    launches: List[Launch]
-    ) -> None:
+async def add_launches(launches: List[Launch]) -> None:
     async with async_session() as transaction:
         async with transaction.begin():
             transaction.add_all(launches)
@@ -98,9 +99,7 @@ async def get_rocket(rocket_id: str) -> Rocket | None:
         await sess.commit()
         return result
 
-async def add_rockets(
-    rockets: List[Rocket],
-    ) -> None:
+async def add_rockets(rockets: List[Rocket]) -> None:
     async with async_session() as transaction:
         async with transaction.begin():
             transaction.add_all(rockets)
@@ -139,9 +138,7 @@ async def get_mission(mission_id: str) -> Mission | None:
         return result
 
 
-async def add_missions(
-    missions: List[Mission]
-    ) -> None:
+async def add_missions(missions: List[Mission]) -> None:
     async with async_session() as transaction:
         async with transaction.begin():
             transaction.add_all(missions)

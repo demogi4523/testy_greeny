@@ -9,14 +9,5 @@ class Config():
         self.db_name = os.environ.get("POSTGRES_DB", 'space_x')
         self.db_port = os.environ.get("POSTGRES_PORT", '5432')
 
-    def from_dict(self) -> dict:
-        return (
-            self.db_user,
-            self.db_passwd,
-            self.db_host,
-            self.db_name,
-            self.db_port,
-        )
-
     def get_db_url(self) -> str:
         return f"postgresql+asyncpg://{self.db_user}:{self.db_passwd}@{self.db_host}:{self.db_port}/{self.db_name}"
