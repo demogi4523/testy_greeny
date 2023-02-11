@@ -45,10 +45,8 @@ app = FastAPI()
 
 
 @app.on_event("startup")
-async def startup(
-    ) -> None:
+async def startup() -> None:
     await fill_data_to_db()
-
 
 
 @app.on_event("shutdown")

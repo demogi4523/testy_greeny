@@ -50,8 +50,7 @@ async def launches_query_async(client: Client):
         launches[ind]["launch_date_utc"] = ldu
         launches[ind]["rocket_id"] = rid
         launches[ind]["mission_id"] = mid
-        # del launches[ind]['rocket_id']
-    print(launches[:1])
+
 
     return launches
 
