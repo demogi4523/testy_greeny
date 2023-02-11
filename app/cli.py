@@ -12,7 +12,7 @@ def fill_db() -> None:
 
 
 @cli.command()
-async def migate() -> None:
+async def migrate() -> None:
     pass
 
 
@@ -22,5 +22,4 @@ async def test() -> None:
 
 
 if __name__ == "__main__":
-    # FIXME: module cli not working
     cli()

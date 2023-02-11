@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build: app
-    container_name: fastapi
+    container_name: ddd_fastapi
     command: bash -c "uvicorn main:app --host 0.0.0.0"
     ports:
       - "8000:8000"
@@ -18,7 +18,7 @@ services:
     image: "postgres"
     container_name: ps
     environment:
-      - POSTGRES_HOST=ps
+      - POSTGRES_HOST=psddd
       - POSTGRES_DB=space_x
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=top_secret

@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import Query
 from sqlalchemy import select, funcfilter
+
 from models import Launch, Rocket, Mission
 from schema.enums import LaunchOrderEnum, MissionOrderEnum, RocketOrderEnum
 from database import LocalAsyncSession as async_session

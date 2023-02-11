@@ -19,7 +19,6 @@ from schema.enums import (
 from script import fill_data_to_db
 from service import (
     get_launches,
-    # get_successfull_launches,
     get_rockets,
     get_missions,
 )
@@ -61,6 +60,7 @@ async def root(request: Request) -> dict:
         "launches": f"{base_url}launches/",
         "rockets": f"{base_url}rockets/",
         "missions": f"{base_url}missions/",
+        "docs": f"{base_url}docs/",
     }
 
 
