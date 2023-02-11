@@ -4,19 +4,10 @@ services:
   web:
     build: app
     container_name: fastapi
-    # command: bash -c "python cli.py && uvicorn main:app --host 0.0.0.0"
-    # command: bash -c "python script.py && uvicorn main:app --host 0.0.0.0"
     command: bash -c "uvicorn main:app --host 0.0.0.0"
     ports:
       - "8000:8000"
-    # env_file:
-    #   - app/.env
     environment:
-    #   - POSTGRES_HOST=ps
-    #   - POSTGRES_DB=space_x
-    #   - POSTGRES_USER=admin
-    #   - POSTGRES_PASSWORD=top_secret
-    #   - POSTGRES_PORT=5432
       - MODE=prod
     depends_on:
       - db
@@ -26,14 +17,6 @@ services:
   db:
     image: "postgres"
     container_name: ps
-    # environment:
-    #   - POSTGRES_HOST=ps
-    #   - POSTGRES_DB=space_x
-    #   - POSTGRES_USER=admin
-    #   - POSTGRES_PASSWORD=top_secret
-    #   - POSTGRES_PORT=5432
-    # env_file:
-    #   - app/.env
     ports:
       - "5432:5432"
 

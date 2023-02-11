@@ -1,23 +1,18 @@
 import asyncio
-from fastapi import Depends
 
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
-from sqlalchemy import MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from databases import Database
-from dotenv import load_dotenv
 from dateutil import parser
 
-from config import Config
-from database import get_session, Base, DATABASE_URL, engine
-from models import Launch, Mission, Rocket
+from database import Base, DATABASE_URL, engine
+from models import (
+    Launch as LaunchDB,
+    Rocket as RocketDB,
+    Mission as MissionDB,
+)
 from service import add_launches, add_missions, add_rockets
 
-
-# TODO: refactor this module
-# async_session = get_session()
 
 SPACE_X_URL = "https://spacex-production.up.railway.app/"
 transport = AIOHTTPTransport(url=SPACE_X_URL)
@@ -101,7 +96,7 @@ async def missions_query_async(client: Client):
 
     missions = [{
         **mission,
-        "payloads": "orbit: {}\nnationality: {}\nmanufacturer: {}".format(
+        "payloads": "orbit: {}\nnationality: {}\nmanufacturer: {}".format( # pylint: disable=consider-using-f-string
                 mission['payloads']['orbit'],
                 mission['payloads']['nationality'],
                 mission['payloads']['manufacturer'],
@@ -115,22 +110,25 @@ async def init_models():
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
-async def run(async_session: AsyncSession = Depends(get_session)):
-    launches = await launches_query_async(gql_client)
-    rockets = await rockets_query_async(gql_client)
-    missions = await missions_query_async(gql_client)
-
+async def fill_data_to_db():
     database = Database(DATABASE_URL)
     await init_models()
     await database.connect()
 
 
-    print(type(async_session))
-    await add_launches(async_session, launches)
-    # await add_rockets(async_session, rockets)
-    # await add_missions(async_session, missions)
+    launches = await launches_query_async(gql_client)
+    launches = [LaunchDB(**l) for l in launches]
+    await add_launches(launches)
+
+    rockets = await rockets_query_async(gql_client)
+    rockets = [RocketDB(**r) for r in rockets]
+    await add_rockets(rockets)
+
+    missions = await missions_query_async(gql_client)
+    missions = [MissionDB(**m) for m in missions]
+    await add_missions(missions)
 
     await database.disconnect()
 
 if __name__ =='__main__':
-    asyncio.run(run())
+    asyncio.run(fill_data_to_db())

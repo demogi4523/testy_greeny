@@ -2,13 +2,13 @@ import asyncio
 
 import typer
 
-from script import run
+from script import fill_data_to_db
 
 cli = typer.Typer()
 
 @cli.callback(invoke_without_command=True)
 def fill_db() -> None:
-    asyncio.run(run())
+    asyncio.run(fill_data_to_db())
 
 
 @cli.command()

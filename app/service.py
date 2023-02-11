@@ -2,13 +2,11 @@ from typing import List
 
 from fastapi import Query
 from sqlalchemy import select, funcfilter
-from sqlalchemy.ext.asyncio import AsyncSession
 from models import Launch, Rocket, Mission
 from schema.enums import LaunchOrderEnum, MissionOrderEnum, RocketOrderEnum
 from database import LocalAsyncSession as async_session
 
 async def get_launches(
-    # async_session: AsyncSession,
     order_by: LaunchOrderEnum = LaunchOrderEnum.id,
     page: Query(ge=1, default=1) = 1, size: Query(ge=1, default=5) = 5,
     desc: bool = True,
@@ -21,10 +19,6 @@ async def get_launches(
         case _:
             order = Launch.id
 
-
-    # print(order)
-    # print(type(order))
-    # print(dir(order))
     desc_or_asc = order.desc() if desc else order.asc()
 
     async with async_session() as transaction:
@@ -35,7 +29,6 @@ async def get_launches(
 
 
 async def get_successfull_launches(
-    # async_session: AsyncSession,
     order_by: LaunchOrderEnum = LaunchOrderEnum.id,
     page: Query(ge=1, default=1) = 1, size: Query(ge=1, default=5) = 5,
     desc: bool = True) -> list[Launch]:
@@ -60,18 +53,15 @@ async def get_successfull_launches(
 
 
 async def add_launches(
-    # async_session: AsyncSession,
     launches: List[Launch]
     ) -> None:
     async with async_session() as transaction:
         async with transaction.begin():
-            # print(dir(transaction))
             transaction.add_all(launches)
             transaction.commit()
 
 
 async def get_rockets(
-    # async_session: AsyncSession,
     order_by: RocketOrderEnum = RocketOrderEnum.id,
     page: Query(ge=1, default=1) = 1,
     size: Query(ge=1, default=5) = 5,
@@ -95,7 +85,6 @@ async def get_rockets(
 
 
 async def add_rockets(
-    # async_session: AsyncSession,
     rockets: List[Rocket],
     ) -> None:
     async with async_session() as transaction:
@@ -105,7 +94,6 @@ async def add_rockets(
 
 
 async def get_missions(
-    # async_session: AsyncSession,
     order_by: MissionOrderEnum = MissionOrderEnum.id,
     page: Query(ge=1, default=1) = 1,
     size: Query(ge=1, default=5) = 5,
@@ -131,7 +119,6 @@ async def get_missions(
 
 
 async def add_missions(
-    # async_session: AsyncSession,
     missions: List[Mission]
     ) -> None:
     async with async_session() as transaction:
